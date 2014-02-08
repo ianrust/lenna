@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 2.8)
+project( lenna )
+find_package( OpenCV REQUIRED )
+add_executable( lenna lennify.cpp )
+target_link_libraries( lenna ${OpenCV_LIBS} )
