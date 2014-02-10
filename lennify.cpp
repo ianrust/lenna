@@ -7,23 +7,86 @@
 
 using namespace cv;
 
-static int selectState = 0;
-static char * windowName = "Display Image";
+typedef enum uiState
+{
+	START = 0,
+	FIRST_CORNER = 1,
+	LAST_CORNER = 2,
+	DRAWING = 3,
+	DONE = 4
+};
+
+void operator--(uiState & lastState,int)
+{
+	int intState=static_cast<int>(lastState)-1;
+	lastState=static_cast<uiState>(intState);
+}
+
+
+static uiState selectState = START;
+static string  windowName = "Display Image";
+Scalar annoColor = Scalar(255,255,255);
+
+CvPoint startRect;
+CvPoint endRect;
+Mat image;
+Mat startImage;
 
 static std::string num2str(int num);
+void refreshImage();
 
 static void onMouse(int event, int x, int y, int, void*) 
 {
-	std::cout << std::endl;
-	std::cout << "EVENT:" << num2str(event) << std::endl;
-	std::cout << "X:" << num2str(x) << std::endl;
-	std::cout << "Y:" << num2str(y) << std::endl;
+	if (event == EVENT_LBUTTONUP)
+	{
+
+		std::cout << num2str(selectState) << std::endl;
+		if (selectState == START)
+		{
+			startRect.x=x;
+			startRect.y=y;
+
+			std::cout << "first point" << std::endl;
+			selectState=FIRST_CORNER;
+		}
+		else if (selectState == FIRST_CORNER)
+		{
+			endRect.x=x;
+			endRect.y=y;
+
+			std::cout << "last point" << std::endl;
+			selectState=LAST_CORNER;
+		}
+		refreshImage();
+		std::cout << "Click Up"  << std::endl;
+	}
+	if (event == EVENT_LBUTTONDOWN)
+	{
+		std::cout << "Click Down"  << std::endl;
+	}
+}
+
+void refreshImage()
+{
+	if (selectState < LAST_CORNER)
+	{
+		std::cout << "going through ok" << std::endl;
+		image.release();
+		startImage.copyTo(image);
+		imshow(windowName,image);
+	}
+	else if ((int)selectState < (int)DRAWING)
+	{
+		std::cout << "drawing image w/rect" << std::endl;
+		rectangle(image,startRect,endRect,annoColor);
+		imshow(windowName,image);
+	}
 }
 
 int main( int argc, char** argv )
 {
-  Mat image;
   image = imread( argv[1], 1 );
+  startImage = image;
 
   if( argc != 2 || !image.data )
     {
@@ -31,24 +94,34 @@ int main( int argc, char** argv )
       return -1;
     }
 
-  namedWindow( "Display Image", CV_WINDOW_AUTOSIZE );
+  namedWindow(windowName, CV_WINDOW_AUTOSIZE );
 
-  setMouseCallback("Display Image",onMouse,0);
+  setMouseCallback(windowName,onMouse,0);
 
-  imshow( "Display Image", image );
+  imshow(windowName, image );
 
+  int key = 0;
+  while (key !=100)
+  {
+  	key = waitKey(0);
 
+  	std::cout << num2str(key) << std::endl;
+  
+	if (key == 27)
+	{
+		if ((int)selectState > 0)
+		{
+			selectState--;
+		}
+		refreshImage();
+	}
+  }
 
-  waitKey(0);
-
-  return 0;
 }
 
 static std::string num2str(int num) 
 {
 	std::stringstream ss;
-
 	ss << num;
-
 	return ss.str();
 }
