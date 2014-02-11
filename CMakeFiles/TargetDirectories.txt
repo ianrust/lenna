@@ -1,1 +1,0 @@
-/home/ian/Documents/lenna/CMakeFiles/lenna.dir
