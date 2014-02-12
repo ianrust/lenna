@@ -118,13 +118,17 @@ void assembleArts()
         edgeMask = (edgeMask == 255);	
 	blackMan.setTo(Scalar(0,0,0),edgeMask);
 	
-	blurMan.setTo(Scalar(0,100,0),edgeMask);
-	GaussianBlur(blurMan,blurMan,Size(7,21),10,30);
+	Mat blur = blurMan.clone();
+	blur.setTo(Scalar(0,100,0),edgeMask);
+	addWeighted(blurMan,0.85,blur,0.15,0.0,blurMan);
+	GaussianBlur(blurMan,blurMan,Size(3,7),2,6);
 	
 	Mat edgeMaskHalfFull = edgeMask.clone();
 	Mat edgeMaskToClear = edgeMaskHalfFull.rowRange(0,(int)(0.3*(y1-y0)));
 	edgeMaskToClear.setTo(Scalar(0));
 	greenMan.setTo(Scalar(0,255,0),edgeMaskHalfFull);
+	
+
 	
 	imshow("finalImage",finalImage);
 }
