@@ -39,7 +39,7 @@ Usage
 
 To "paint" any image like this, simply run the following command:
 
-lenna xxxx.jpg
+lenna xxx.jpg
 
-where xxxx.jpg is the image in question
+where xxx.jpg is the image in question
 
